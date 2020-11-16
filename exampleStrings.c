@@ -15,28 +15,28 @@
 #include <stdlib.h>
  
 char array1[] = "Foo" "bar";
-char array2[] = { 'F', 'o', 'o', 'b', 'a', 'r', '\0' };
+char array2[] = { 'F', 'o', 'o', 'b', 'a', 'r', '\0' }; /* ARR02-C */
  
 enum { BUFFER_MAX_SIZE = 1024 };
  
-const char* s1 = R"foo(
-Hello
-World
-)foo";
+const char* s1 = "foo( \
+Hello \
+World \
+)foo"; 
 const char* s2 = "\nHello\nWorld\n";
 
 void gets_example_func(void) {
   char buf[BUFFER_MAX_SIZE];
  
   if (fgets(buf, sizeof(buf), stdin) == NULL) {
-        return 1;
+        //return 1; /* Void Func */
   }
   buf[strlen(buf) - 1] = '\0';
 }
 
 const char *get_dirname(const char *pathname) {
   char *slash;
-  slash = strrchr(pathname, '/');
+  slash = (char*)malloc(sizeof(strrchr(pathname,'/')));
   if (slash) {
     *slash = '\0'; /* Undefined behavior */
   }
@@ -45,15 +45,15 @@ const char *get_dirname(const char *pathname) {
  
 
 void get_y_or_n(void) {  
-	char response[8];
+  char response[2]; /* ARR32-C */
 
-	printf("Continue? [y] n: ");  
-	gets(response);
+  printf("Continue? [y] n: ");  
+  fgets(response,sizeof(response),stdin); /* MSC24-C - Replaced with fgets */
 
-	if (response[0] == 'n') 
-		exit(0);  
+  if (response[0] == 'n') 
+    exit(0);  
 
-	return;
+  return;
 }
 
  
@@ -64,21 +64,22 @@ int main(int argc, char *argv[])
     char array3[16];
     char array4[16];
     char array5 []  = "01234567890123456";
-    char *ptr_char  = "new string literal";
-    int size_array1 = strlen("аналитик");
-    int size_array2 = 100;
-    
-   // char analitic1[size_array1]="аналитик";
-   // char analitic2[size_array2]="аналитик";
-    char analitic3[100]="аналитик";
+    //char ptr_char[]  = "new string literal";          |
+    //int size_array1 = strlen("аналитик");             |
+    //int size_array2 = 100;                            |
+    //char analitic1[size_array1]="аналитик";           | Unused Variables
+    //char analitic2[size_array2]="аналитик";           |
+    //char analitic3[100]="аналитик"; /* STR11-C */     |
 
     puts(get_dirname(__FILE__));
 
-        
-    strcpy(key, argv[1]);  
-    strcat(key, " = ");  
-    strcat(key, argv[2]);
-
+    if (argc == 3){     
+      strcpy(key, argv[1]);  /* STR03-C */
+      strcat(key, " = ");    
+      strcat(key, argv[2]); /* STR03-C */
+    } else {
+      printf("Insuficient Args \n");
+    }
 
     fgets(response,sizeof(response),stdin);
     
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
     strncpy(array4, array3, strlen(array3));
     
     array5 [0] = 'M';
-    ptr_char [0] = 'N';
+    //ptr_char [0] = 'N'; /* STR30-C */
     
     array3[sizeof(array3)-1]='\0';
     
